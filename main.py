@@ -44,15 +44,17 @@ ANTHROPIC_BASE_URL = "https://api.anthropic.com"
 
 def get_aluno(request: Request) -> str:
     """Valida o token do aluno e retorna o nome dele."""
-    auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Token ausente. Use: Authorization: Bearer aluno-XX")
-    
-    token = auth.removeprefix("Bearer ").strip()
-    
+    # LangChain/SDK envia via x-api-key; clientes diretos via Authorization: Bearer
+    token = request.headers.get("x-api-key", "")
+    if not token:
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Token ausente. Use x-api-key ou Authorization: Bearer <token>")
+        token = auth.removeprefix("Bearer ").strip()
+
     if token not in VALID_TOKENS:
         raise HTTPException(status_code=403, detail=f"Token inválido: '{token}'")
-    
+
     return VALID_TOKENS[token]
 
 
