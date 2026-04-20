@@ -8,7 +8,10 @@ import os
 import httpx
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
+from dotenv import load_dotenv
 import json
+
+load_dotenv()  # carrega .env em dev; em produção as vars do ambiente têm precedência
 
 app = FastAPI(title="LLM Proxy — Curso Agentes IA")
 
@@ -16,7 +19,7 @@ app = FastAPI(title="LLM Proxy — Curso Agentes IA")
 # Configuração
 # ---------------------------------------------------------
 
-# Sua chave real da Anthropic (definida como variável de ambiente)
+# Em dev: lido do .env  |  Em produção: injetado pelo painel do EasyPanel
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 # Tokens válidos dos alunos  →  nome para logging
