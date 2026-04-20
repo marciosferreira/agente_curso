@@ -21,6 +21,7 @@ app = FastAPI(title="LLM Proxy — Curso Agentes IA")
 
 # Em dev: lido do .env  |  Em produção: injetado pelo painel do EasyPanel
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+MODEL = os.environ.get("MODEL", "claude-haiku-4-5-20251001")
 
 # Tokens válidos dos alunos  →  nome para logging
 VALID_TOKENS = {
@@ -78,14 +79,14 @@ async def proxy_messages(request: Request):
     aluno = get_aluno(request)
     
     body = await request.body()
-    
-    # Log simples (sem logar o conteúdo completo por privacidade)
+
     try:
         payload = json.loads(body)
-        model = payload.get("model", "?")
+        payload["model"] = MODEL  # força o modelo configurado, ignorando o do cliente
+        body = json.dumps(payload).encode()
         n_messages = len(payload.get("messages", []))
         stream = payload.get("stream", False)
-        print(f"[{aluno}] model={model} messages={n_messages} stream={stream}")
+        print(f"[{aluno}] model={MODEL} messages={n_messages} stream={stream}")
     except Exception:
         pass
 
@@ -139,6 +140,7 @@ def health():
     return {
         "status": "ok",
         "anthropic_key_configured": has_key,
+        "model": MODEL,
         "alunos_registrados": len(VALID_TOKENS),
     }
 
