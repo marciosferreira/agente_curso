@@ -23,19 +23,18 @@ app = FastAPI(title="LLM Proxy — Curso Agentes IA")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("MODEL", "claude-haiku-4-5-20251001")
 
-# Tokens válidos dos alunos  →  nome para logging
-VALID_TOKENS = {
-    "aluno-01": "Aluno 1",
-    "aluno-02": "Aluno 2",
-    "aluno-03": "Aluno 3",
-    "aluno-04": "Aluno 4",
-    "aluno-05": "Aluno 5",
-    "aluno-06": "Aluno 6",
-    "aluno-07": "Aluno 7",
-    "aluno-08": "Aluno 8",
-    "aluno-09": "Aluno 9",
-    "aluno-10": "Aluno 10",
-}
+# Tokens válidos dos alunos → nome para logging
+# Formato da env var: "token1:Nome 1,token2:Nome 2,..."
+def _parse_tokens(raw: str) -> dict:
+    result = {}
+    for entry in raw.split(","):
+        entry = entry.strip()
+        if ":" in entry:
+            token, name = entry.split(":", 1)
+            result[token.strip()] = name.strip()
+    return result
+
+VALID_TOKENS = _parse_tokens(os.environ.get("VALID_TOKENS", ""))
 
 ANTHROPIC_BASE_URL = "https://api.anthropic.com"
 
